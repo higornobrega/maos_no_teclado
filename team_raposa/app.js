@@ -44,7 +44,7 @@ const createRow = (product, index) => {
     const newRow = document.createElement('tr')
     newRow.innerHTML = `<td>${product.nome}</td>
     <td>
-    <button type="button" class="button green">editar</button>
+    <button type="button" class="button green" id="edit-${index}">editar</button>
     <button type="button" class="button red">excluir</button>
     </td>`
     document.querySelector('#tableProducts>tbody').appendChild(newRow)
@@ -69,11 +69,48 @@ const saveClient = () => {
         const product = {
             nome: document.getElementById('nome').value,
         }
-        addProduct(product)
-        updateTable()
-        closeModal()
+        const index = document.getElementById('nome').dataset.index
+        if (index == 'new') {
+            addProduct(product)
+            updateTable()
+            closeModal()
+        } else {
+            updateProduct(index, product)
+            updateTable()
+            closeModal()
+        }
     }
 }
 
 document.getElementById('salvar')
     .addEventListener('click', saveClient)
+
+// UPDATE
+const updateProduct = (index, product) => {
+    const dbProduct = readProduct()
+    dbProduct[index] = product
+    setLocalStorage(dbProduct)
+}
+
+const fillFields = (product) => {
+    document.getElementById('nome').value = product.nome
+    document.getElementById('nome').dataset.index = product.index
+}
+
+const editProduct = (index) => {
+    const product = readProduct()[index]
+    product.index = index
+    fillFields(product)
+    openModal()
+}
+
+const edit = (event) => {
+    if(event.target.type == 'button') {
+        const [action, index] = event.target.id.split('-')
+        editProduct(index)
+    }
+    updateTable()
+}
+
+document.querySelector('#tableProducts>tbody')
+    .addEventListener('click', edit)
