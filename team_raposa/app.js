@@ -38,14 +38,14 @@ const isValidFields = () => {
     return document.getElementById('form').reportValidity()
 }
 
-// READ
+// READ - DELETE
 
 const createRow = (product, index) => {
     const newRow = document.createElement('tr')
     newRow.innerHTML = `<td>${product.nome}</td>
     <td>
     <button type="button" class="button green" id="edit-${index}">editar</button>
-    <button type="button" class="button red">excluir</button>
+    <button type="button" class="button red" id="delete-${index}">excluir</button>
     </td>`
     document.querySelector('#tableProducts>tbody').appendChild(newRow)
 }
@@ -85,11 +85,18 @@ const saveClient = () => {
 document.getElementById('salvar')
     .addEventListener('click', saveClient)
 
-// UPDATE
+// UPDATE - DELETE
+
 const updateProduct = (index, product) => {
     const dbProduct = readProduct()
     dbProduct[index] = product
     setLocalStorage(dbProduct)
+}
+
+const deleteProduct = (index) => {
+    const product = readProduct()
+    product.splice(index, 1)
+    setLocalStorage(product)
 }
 
 const fillFields = (product) => {
@@ -104,13 +111,23 @@ const editProduct = (index) => {
     openModal()
 }
 
-const edit = (event) => {
+const editDelete = (event) => {
     if(event.target.type == 'button') {
         const [action, index] = event.target.id.split('-')
-        editProduct(index)
+        if(action == "edit") {
+            editProduct(index)
+        } else {
+            const product = readProduct()[index]
+            const response = confirm(`Dejesa realmente excluir o produto ${product.nome}?`)
+            
+            if (response) {
+                deleteProduct(index)
+            }
+        }
     }
     updateTable()
 }
 
 document.querySelector('#tableProducts>tbody')
-    .addEventListener('click', edit)
+    .addEventListener('click', editDelete)
+
